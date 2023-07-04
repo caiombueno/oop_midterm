@@ -1,12 +1,14 @@
-#include "CandlestickAnalysisToolkit.h"
+#include "CandlestickDataProcessor.h"
 #include "CSVReader.h"
 #include <iostream>
 #include <exception>
 
-const vector<Candlestick> CandlestickAnalysisToolkit::getCandlestickList()
+const vector<Candlestick> CandlestickDataProcessor::getList(string product, OrderBookType orderType)
 {
-    vector<Candlestick> listOfCandlestick;
-    groupedEntries.resize(10);
+    vector<OrderBookEntry> filteredEntries = CSVReader::filterByProductAndType(product, orderType);
+    groupedEntries = CSVReader::groupByTimestamps(filteredEntries);
+    // groupedEntries.resize(20);
+    vector<Candlestick> candlesticks;
     for (const vector<OrderBookEntry> &timestampWindow : groupedEntries)
     {
         timestamp = timestampWindow[0].timestamp;
@@ -15,45 +17,75 @@ const vector<Candlestick> CandlestickAnalysisToolkit::getCandlestickList()
         double high = getHighestPrice();
         double low = getLowestPrice();
         Candlestick candlestickInstance = Candlestick(timestamp, open, high, low, close);
-        candlestickInstance.print();
-        listOfCandlestick.push_back(candlestickInstance);
+        candlesticks.push_back(candlestickInstance);
     }
-    return listOfCandlestick;
+    return candlesticks;
 }
 
-const double CandlestickAnalysisToolkit::computeMeanPrice(vector<OrderBookEntry> entries)
+const double CandlestickDataProcessor::computeMeanPrice(vector<OrderBookEntry> entries)
 {
     double totalValue = 0;
-    double totalPrice = 0;
+    double totalAmount = 0;
     // iterate throught all entries and add its value and price to the total sum of each one
     for (const OrderBookEntry &entry : entries)
     {
         totalValue += entry.amount * entry.price;
-        totalPrice += entry.price;
+        totalAmount += entry.amount;
     }
     // return mean price
-    return totalValue / totalPrice;
+    return totalValue / totalAmount;
 }
 
-const double CandlestickAnalysisToolkit::getOpeningPrice()
+vector<vector<Candlestick>> CandlestickDataProcessor::divideList(const std::vector<Candlestick> &inputVector, int numElements)
+{
+    std::vector<std::vector<Candlestick>> dividedVectors;
+
+    int totalElements = inputVector.size();
+    int numParts = (totalElements + numElements - 1) / numElements;
+
+    for (int i = 0; i < numParts; ++i)
+    {
+        int startIndex = i * numElements;
+        int endIndex = std::min(startIndex + numElements, totalElements);
+
+        std::vector<Candlestick> part;
+        part.reserve(endIndex - startIndex);
+
+        for (int j = startIndex; j < endIndex; ++j)
+        {
+            part.push_back(inputVector[j]);
+        }
+
+        dividedVectors.push_back(part);
+    }
+
+    return dividedVectors;
+}
+
+const double CandlestickDataProcessor::getOpeningPrice()
 {
     vector<OrderBookEntry> previousTimestampEntries = getPreviousTimestampEntries();
+    if (previousTimestampEntries.empty())
+    {
+        return getLowestPrice();
+    }
     return computeMeanPrice(previousTimestampEntries);
 }
 
-const double CandlestickAnalysisToolkit::getClosingPrice()
+const double CandlestickDataProcessor::getClosingPrice()
 {
     vector<OrderBookEntry> currentTimestampEntries = getCurrentTimestampEntries();
     return computeMeanPrice(currentTimestampEntries);
 }
 
-const double CandlestickAnalysisToolkit::getHighestPrice()
+const double CandlestickDataProcessor::getHighestPrice()
 {
     vector<OrderBookEntry> currentTimestampEntries = getCurrentTimestampEntries();
 
     double highestPrice = 0;
     for (const OrderBookEntry &entry : currentTimestampEntries)
     {
+        // cout << entry.price << endl;
         if (entry.price > highestPrice)
         {
             highestPrice = entry.price;
@@ -62,7 +94,7 @@ const double CandlestickAnalysisToolkit::getHighestPrice()
     return highestPrice;
 }
 
-const double CandlestickAnalysisToolkit::getLowestPrice()
+const double CandlestickDataProcessor::getLowestPrice()
 {
     vector<OrderBookEntry> currentTimestampEntries = getCurrentTimestampEntries();
 
@@ -77,7 +109,7 @@ const double CandlestickAnalysisToolkit::getLowestPrice()
     return lowestPrice;
 }
 
-const vector<OrderBookEntry> CandlestickAnalysisToolkit::getPreviousTimestampEntries()
+const vector<OrderBookEntry> CandlestickDataProcessor::getPreviousTimestampEntries()
 {
     for (int i = 0; i < groupedEntries.size(); i++)
     {
@@ -85,7 +117,7 @@ const vector<OrderBookEntry> CandlestickAnalysisToolkit::getPreviousTimestampEnt
         {
             if (i == 0)
             {
-                cout << "AnalysisToolkit::getPreviousTimestampEntries there are no previous timestamps entries";
+                // there are no previous timestamps entries
                 return vector<OrderBookEntry>();
             }
             else
@@ -94,11 +126,11 @@ const vector<OrderBookEntry> CandlestickAnalysisToolkit::getPreviousTimestampEnt
             }
         }
     }
-    cout << "AnalysisToolkit::getPreviousTimestampEntries could not find previous timestamp entries\n";
+    cout << "CandlestickDataProcessor::getPreviousTimestampEntries could not find previous timestamp entries\n";
     throw exception();
 }
 
-const vector<OrderBookEntry> CandlestickAnalysisToolkit::getCurrentTimestampEntries()
+const vector<OrderBookEntry> CandlestickDataProcessor::getCurrentTimestampEntries()
 {
     for (int i = 0; i < groupedEntries.size(); i++)
     {

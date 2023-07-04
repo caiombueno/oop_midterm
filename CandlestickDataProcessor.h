@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <string>
 #include "Candlestick.h"
@@ -5,15 +6,12 @@
 #include "CSVReader.h"
 using namespace std;
 
-class CandlestickAnalysisToolkit
+class CandlestickDataProcessor
 {
 public:
-    CandlestickAnalysisToolkit(string product, OrderBookType orderType)
-    {
-        vector<OrderBookEntry> filteredEntries = CSVReader::filterByProductAndType(product, orderType);
-        groupedEntries = CSVReader::groupByTimestamps(filteredEntries);
-    }
-    const vector<Candlestick> getCandlestickList();
+    // Get a list of Candlestick data based on data passed in constructor
+    const vector<Candlestick> getList(string product, OrderBookType orderType);
+    static vector<vector<Candlestick>> divideList(const std::vector<Candlestick> &inputVector, int numElements);
 
 private:
     vector<vector<OrderBookEntry>> groupedEntries;
@@ -24,7 +22,6 @@ private:
     const double getClosingPrice();
     const double getHighestPrice();
     const double getLowestPrice();
-
     // The parameter must be a list of entries, where all entries have the same timestamp
     static const double computeMeanPrice(vector<OrderBookEntry> entries);
 };
