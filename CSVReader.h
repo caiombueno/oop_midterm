@@ -19,9 +19,8 @@ public:
                                        std::string product,
                                        OrderBookType OrderBookType);
 
+    // Read all entries and select the ones that match the given product and orderBookType
     static vector<OrderBookEntry> filterByProductAndType(string product, OrderBookType orderBookType);
-
-    static vector<vector<OrderBookEntry>> groupByTimestamps(vector<OrderBookEntry> entries);
 
 private:
     static OrderBookEntry stringsToOBE(std::vector<std::string> strings);

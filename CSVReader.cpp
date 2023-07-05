@@ -26,7 +26,7 @@ std::vector<OrderBookEntry> CSVReader::readCSV(std::string csvFilename)
             {
                 std::cout << "CSVReader::readCSV bad data" << std::endl;
             }
-        } // end of while
+        }
     }
 
     return entries;
@@ -119,25 +119,4 @@ vector<OrderBookEntry> CSVReader::filterByProductAndType(string product, OrderBo
     copy_if(orderBookEntries.begin(), orderBookEntries.end(), back_inserter(filteredEntries), [&](const OrderBookEntry &entry)
             { return (entry.product == product && entry.orderType == orderBookType); });
     return filteredEntries;
-}
-
-vector<vector<OrderBookEntry>> CSVReader::groupByTimestamps(vector<OrderBookEntry> entries)
-{
-    map<string, vector<OrderBookEntry>> groupedEntries;
-
-    // Iterate over the entries timestamps
-    for (const auto &entry : entries)
-    {
-        groupedEntries[entry.timestamp].push_back(entry);
-    }
-
-    vector<vector<OrderBookEntry>> groupedEntriesList;
-
-    // convert the grouped entries map to a list of vectors
-    for (const auto &pair : groupedEntries)
-    {
-        groupedEntriesList.push_back(pair.second);
-    }
-
-    return groupedEntriesList;
 }

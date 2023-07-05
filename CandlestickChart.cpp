@@ -16,15 +16,14 @@ std::vector<double> CandlestickChart::generateYAxisValues(double maxValue, doubl
 
 std::vector<Candlestick> CandlestickChart::cutDatesStrings(std::vector<Candlestick> candlesticks)
 {
-    for (Candlestick candlestick : candlesticks)
+    for (int i = 0; i < candlesticks.size(); i++)
     {
-        std::string newDate = candlestick.date.substr(11, 8);
-        candlestick.date = newDate;
+        candlesticks[i].date = candlesticks[i].date.substr(11, 8);
     }
     return candlesticks;
 }
 
-std::vector<string> CandlestickChart::plotAxes(std::vector<std::string> plot, int width, const std::vector<std::string> &xAxisValues, const std::vector<double> &yAxisValues)
+std::vector<std::string> CandlestickChart::plotAxes(std::vector<std::string> plot, int width, const std::vector<std::string> &xAxisValues, const std::vector<double> &yAxisValues)
 {
     // add Y Axis
     for (int i = 0; i < yAxisValues.size(); i++)
@@ -47,14 +46,14 @@ std::vector<string> CandlestickChart::plotAxes(std::vector<std::string> plot, in
     return plot;
 }
 
-int CandlestickChart::getClosestYIndex(std::vector<double> yAxisValues, double highest)
+int CandlestickChart::getClosestYIndex(std::vector<double> yAxisValues, double value)
 {
-    double minDifference = std::abs(yAxisValues[0] - highest);
+    double minDifference = std::abs(yAxisValues[0] - value);
     int closestIndex = 0;
 
     for (int i = 1; i < yAxisValues.size(); i++)
     {
-        double difference = std::abs(yAxisValues[i] - highest);
+        double difference = std::abs(yAxisValues[i] - value);
         if (difference < minDifference)
         {
             minDifference = difference;
@@ -64,8 +63,9 @@ int CandlestickChart::getClosestYIndex(std::vector<double> yAxisValues, double h
     return closestIndex;
 }
 
-const void CandlestickChart::plotCandlestickChart(const vector<Candlestick> &candlesticks)
+const void CandlestickChart::plotChart(std::vector<Candlestick> candlesticks)
 {
+    candlesticks = cutDatesStrings(candlesticks);
     const int width = 190;
     const int height = 12;
 
@@ -85,13 +85,13 @@ const void CandlestickChart::plotCandlestickChart(const vector<Candlestick> &can
         }
     }
     // create the plot
-    vector<string> plot(height, string(width, ' '));
+    std::vector<std::string> plot(height, std::string(width, ' '));
 
     // get Y axis values
-    vector<double> yAxisValues = generateYAxisValues(maxValue, minValue, 10);
+    std::vector<double> yAxisValues = generateYAxisValues(maxValue, minValue, 10);
 
     // get X axis values
-    vector<string> xAxisValues;
+    std::vector<std::string> xAxisValues;
     for (const Candlestick &candlestick : candlesticks)
     {
         xAxisValues.push_back(candlestick.date);
@@ -161,7 +161,7 @@ const void CandlestickChart::plotCandlestickChart(const vector<Candlestick> &can
         x += 10;
     }
     // print the graph
-    for (string line : plot)
+    for (std::string line : plot)
     {
         std::cout << line << std::endl;
     }

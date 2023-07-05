@@ -4,24 +4,35 @@
 #include "Candlestick.h"
 #include "OrderBookEntry.h"
 #include "CSVReader.h"
-using namespace std;
 
 class CandlestickDataProcessor
 {
 public:
     // Get a list of Candlestick data based on data passed in constructor
-    const vector<Candlestick> getList(string product, OrderBookType orderType);
-    static vector<vector<Candlestick>> divideList(const std::vector<Candlestick> &inputVector, int numElements);
+    const std::vector<Candlestick> getList(std::string product, OrderBookType orderType);
+    // Divide the vector into smaller segments, so that the length of each doesn't exceed 'numElements' length.
+    static std::vector<vector<Candlestick>> divideList(const std::vector<Candlestick> &inputVector, int numElements);
 
 private:
-    vector<vector<OrderBookEntry>> groupedEntries;
+    // Store the entries grouped based on their timestamps.
+    std::vector<std::vector<OrderBookEntry>> groupedEntries;
+    // Store the current timestamp being used.
     string timestamp;
-    const vector<OrderBookEntry> getPreviousTimestampEntries();
-    const vector<OrderBookEntry> getCurrentTimestampEntries();
+    // Retrieve the entries with a timestamp preceding the current one.
+    const std::vector<OrderBookEntry> getPreviousTimestampEntries();
+    // Retrive the entries with the current timestamp.
+    const std::vector<OrderBookEntry> getCurrentTimestampEntries();
+    // Get the open price for the candlestick.
     const double getOpeningPrice();
+    // Get the close price for the candlestick.
     const double getClosingPrice();
+    // Get the high price for the candlestick.
     const double getHighestPrice();
+    // Get the low price for the candlestick.
     const double getLowestPrice();
-    // The parameter must be a list of entries, where all entries have the same timestamp
-    static const double computeMeanPrice(vector<OrderBookEntry> entries);
+    // Retrieve the mean price for the given entries.
+    // All entries must have the same timestamp.
+    static const double computeMeanPrice(std::vector<OrderBookEntry> entries);
+    // Group the entries by timestamp.
+    static vector<vector<OrderBookEntry>> groupByTimestamps(vector<OrderBookEntry> entries);
 };

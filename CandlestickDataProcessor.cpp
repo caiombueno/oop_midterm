@@ -2,14 +2,14 @@
 #include "CSVReader.h"
 #include <iostream>
 #include <exception>
+#include <map>
 
-const vector<Candlestick> CandlestickDataProcessor::getList(string product, OrderBookType orderType)
+const std::vector<Candlestick> CandlestickDataProcessor::getList(std::string product, OrderBookType orderType)
 {
-    vector<OrderBookEntry> filteredEntries = CSVReader::filterByProductAndType(product, orderType);
-    groupedEntries = CSVReader::groupByTimestamps(filteredEntries);
-    // groupedEntries.resize(20);
-    vector<Candlestick> candlesticks;
-    for (const vector<OrderBookEntry> &timestampWindow : groupedEntries)
+    std::vector<OrderBookEntry> filteredEntries = CSVReader::filterByProductAndType(product, orderType);
+    groupedEntries = CandlestickDataProcessor::groupByTimestamps(filteredEntries);
+    std::vector<Candlestick> candlesticks;
+    for (const std::vector<OrderBookEntry> &timestampWindow : groupedEntries)
     {
         timestamp = timestampWindow[0].timestamp;
         double open = getOpeningPrice();
@@ -141,4 +141,25 @@ const vector<OrderBookEntry> CandlestickDataProcessor::getCurrentTimestampEntrie
     }
     cout << "AnalysisToolkit::getCurrentTimestampEntries could not find current timestamp entries\n";
     throw exception();
+}
+
+vector<vector<OrderBookEntry>> CandlestickDataProcessor::groupByTimestamps(vector<OrderBookEntry> entries)
+{
+    map<string, vector<OrderBookEntry>> groupedEntries;
+
+    // Iterate over the entries timestamps
+    for (const auto &entry : entries)
+    {
+        groupedEntries[entry.timestamp].push_back(entry);
+    }
+
+    vector<vector<OrderBookEntry>> groupedEntriesList;
+
+    // convert the grouped entries map to a list of vectors
+    for (const auto &pair : groupedEntries)
+    {
+        groupedEntriesList.push_back(pair.second);
+    }
+
+    return groupedEntriesList;
 }

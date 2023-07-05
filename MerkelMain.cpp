@@ -175,7 +175,7 @@ int MerkelMain::getUserOption()
 {
     int userOption = 0;
     std::string line;
-    std::cout << "Type in 1-6" << std::endl;
+    std::cout << "Type in 1-7" << std::endl;
     std::getline(std::cin, line);
     try
     {
@@ -243,17 +243,13 @@ void MerkelMain::plotCandlestickGraph(std::string product, OrderBookType orderTy
     CandlestickDataProcessor dataProcessor = CandlestickDataProcessor();
     vector<Candlestick> candlesticks = dataProcessor.getList(product, orderType);
 
-    for (int i = 0; i < candlesticks.size(); i++)
-    {
-        candlesticks[i].date = candlesticks[i].date.substr(11, 8);
-    }
     vector<vector<Candlestick>> dividedCandlestickList = CandlestickDataProcessor::divideList(candlesticks, 16);
     int currentIndex = 0;
     char choice;
 
     do
     {
-        CandlestickChart::plotCandlestickChart(dividedCandlestickList[currentIndex]);
+        CandlestickChart::plotChart(dividedCandlestickList[currentIndex]);
         currentIndex++;
 
         if (currentIndex >= dividedCandlestickList.size())
@@ -262,7 +258,7 @@ void MerkelMain::plotCandlestickGraph(std::string product, OrderBookType orderTy
             break;
         }
 
-        std::cout << "Do you want to see more candlesticks based on your choice? (y/n): ";
+        std::cout << "Do you want to see the more candlesticks for your choice? (y/n): ";
         std::cin >> choice;
     } while (choice == 'y' || choice == 'Y');
 }

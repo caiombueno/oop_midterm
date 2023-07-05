@@ -1,12 +1,13 @@
 #pragma once
 #include <string>
-using namespace std;
+#include <iostream>
 
+// The candlestick model class used to represent a candlestick
 class Candlestick
 {
 public:
     Candlestick(
-        string _date,
+        std::string _date,
         double _open,
         double _high,
         double _low,
@@ -19,11 +20,14 @@ public:
         close = _close;
     }
 
-    string date;
+    std::string date;
     double open;
     double high;
     double low;
     double close;
 
-    void print();
+    void print()
+    {
+        std::cout << "Candlestick(date: " << date << ", open: " << open << ", high: " << high << ", low: " << low << ", close: " << close << ")" << std::endl;
+    }
 };
