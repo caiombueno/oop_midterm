@@ -111,12 +111,3 @@ OrderBookEntry CSVReader::stringsToOBE(std::string priceString,
 
     return obe;
 }
-
-vector<OrderBookEntry> CSVReader::filterByProductAndType(string product, OrderBookType orderBookType)
-{
-    vector<OrderBookEntry> orderBookEntries = readCSV("20200601.csv");
-    vector<OrderBookEntry> filteredEntries;
-    copy_if(orderBookEntries.begin(), orderBookEntries.end(), back_inserter(filteredEntries), [&](const OrderBookEntry &entry)
-            { return (entry.product == product && entry.orderType == orderBookType); });
-    return filteredEntries;
-}

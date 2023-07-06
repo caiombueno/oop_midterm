@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <map>
 #include "Candlestick.h"
 #include "OrderBookEntry.h"
 #include "CSVReader.h"
@@ -8,10 +9,12 @@
 class CandlestickDataProcessor
 {
 public:
-    // Get a list of Candlestick data based on data passed in constructor
-    const std::vector<Candlestick> getList(std::string product, OrderBookType orderType);
+    // Get a list of Candlestick data
+    const std::vector<Candlestick> getList(std::vector<OrderBookEntry> filteredEntries);
     // Divide the vector into smaller segments, so that the length of each doesn't exceed 'numElements' length.
     static std::vector<vector<Candlestick>> divideList(const std::vector<Candlestick> &inputVector, int numElements);
+    // Group the entries by timestamp.
+    static vector<vector<OrderBookEntry>> groupByTimestamps(vector<OrderBookEntry> entries);
 
 private:
     // Store the entries grouped based on their timestamps.
@@ -33,6 +36,4 @@ private:
     // Retrieve the mean price for the given entries.
     // All entries must have the same timestamp.
     static const double computeMeanPrice(std::vector<OrderBookEntry> entries);
-    // Group the entries by timestamp.
-    static vector<vector<OrderBookEntry>> groupByTimestamps(vector<OrderBookEntry> entries);
 };

@@ -4,9 +4,8 @@
 #include <exception>
 #include <map>
 
-const std::vector<Candlestick> CandlestickDataProcessor::getList(std::string product, OrderBookType orderType)
+const std::vector<Candlestick> CandlestickDataProcessor::getList(std::vector<OrderBookEntry> filteredEntries)
 {
-    std::vector<OrderBookEntry> filteredEntries = CSVReader::filterByProductAndType(product, orderType);
     groupedEntries = CandlestickDataProcessor::groupByTimestamps(filteredEntries);
     std::vector<Candlestick> candlesticks;
     for (const std::vector<OrderBookEntry> &timestampWindow : groupedEntries)

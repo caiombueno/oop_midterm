@@ -29,6 +29,10 @@ public:
 
     std::vector<OrderBookEntry> matchAsksToBids(std::string product, std::string timestamp);
 
+    void plotOrderTypeDistribution(std::string product, std::string timestamp);
+
+    vector<OrderBookEntry> filterByProductAndType(string product, OrderBookType orderBookType);
+
     static double getHighPrice(std::vector<OrderBookEntry> &orders);
     static double getLowPrice(std::vector<OrderBookEntry> &orders);
 

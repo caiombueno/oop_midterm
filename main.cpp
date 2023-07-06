@@ -3,6 +3,7 @@
 #include "MerkelMain.h"
 #include "CandlestickDataProcessor.h"
 #include "CandlestickChart.h"
+#include "OrderBook.h"
 
 int main()
 {

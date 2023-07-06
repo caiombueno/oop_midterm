@@ -5,6 +5,7 @@
 #include "CSVReader.h"
 #include "CandlestickDataProcessor.h"
 #include "CandlestickChart.h"
+#include "VolumeBarChart.h"
 
 MerkelMain::MerkelMain()
 {
@@ -39,8 +40,12 @@ void MerkelMain::printMenu()
     std::cout << "5: Print wallet " << std::endl;
     // 6 print candletick graph for some product,order type
     std::cout << "6: Print candletick graph for some product,order type " << std::endl;
-    // 7 continue
-    std::cout << "7: Continue " << std::endl;
+    // 7 print volume bar graph for some product,order type
+    std::cout << "7: Print volume bar graph for some product,order type " << std::endl;
+    // 8 Print order type distribution for the current timeframe
+    std::cout << "8: Print order type distribution for the current timeframe. " << std::endl;
+    // 9 continue
+    std::cout << "9: Continue " << std::endl;
 
     std::cout << "============== " << std::endl;
 
@@ -175,7 +180,7 @@ int MerkelMain::getUserOption()
 {
     int userOption = 0;
     std::string line;
-    std::cout << "Type in 1-7" << std::endl;
+    std::cout << "Type in 1-9" << std::endl;
     std::getline(std::cin, line);
     try
     {
@@ -234,6 +239,30 @@ void MerkelMain::processUserOption(int userOption)
     }
     if (userOption == 7)
     {
+        std::string line;
+        std::cout << "Type in a product and a order type. Ex: ETH/BTC,bid." << std::endl;
+        std::getline(std::cin, line);
+        vector<string> elements = CSVReader::tokenise(line, ',');
+        std::string product = elements[0];
+        OrderBookType order = OrderBookEntry::stringToOrderBookType(elements[1]);
+        if (order == OrderBookType::unknown)
+        {
+            std::cout << "Error. Type another order book type." << std::endl;
+        }
+        else
+        {
+            plotVolumeBarGraph(product, order);
+        }
+    }
+    if (userOption == 8)
+    {
+        std::string product;
+        std::cout << "Type in a product. Ex: ETH/BTC." << std::endl;
+        std::getline(std::cin, product);
+        orderBook.plotOrderTypeDistribution(product, currentTime);
+    }
+    if (userOption == 9)
+    {
         gotoNextTimeframe();
     }
 }
@@ -241,7 +270,8 @@ void MerkelMain::processUserOption(int userOption)
 void MerkelMain::plotCandlestickGraph(std::string product, OrderBookType orderType)
 {
     CandlestickDataProcessor dataProcessor = CandlestickDataProcessor();
-    vector<Candlestick> candlesticks = dataProcessor.getList(product, orderType);
+    std::vector<OrderBookEntry> filteredEntries = orderBook.filterByProductAndType(product, orderType);
+    vector<Candlestick> candlesticks = dataProcessor.getList(filteredEntries);
 
     vector<vector<Candlestick>> dividedCandlestickList = CandlestickDataProcessor::divideList(candlesticks, 16);
     int currentIndex = 0;
@@ -259,6 +289,40 @@ void MerkelMain::plotCandlestickGraph(std::string product, OrderBookType orderTy
         }
 
         std::cout << "Do you want to see the more candlesticks for your choice? (y/n): ";
+        std::cin >> choice;
+    } while (choice == 'y' || choice == 'Y');
+}
+
+void MerkelMain::plotVolumeBarGraph(std::string product, OrderBookType orderType)
+{
+    std::vector<OrderBookEntry> filteredEntries = orderBook.filterByProductAndType(product, orderType);
+    std::map<std::string, vector<OrderBookEntry>> groupedEntries = VolumeBarChart::groupByTimestampsMap(filteredEntries);
+    std::vector<double> volumes = VolumeBarChart::getVolumes(groupedEntries);
+    std::vector<std::string> timestamps = VolumeBarChart::getTimestamps(groupedEntries);
+    int startIndex = 0;
+    int endIndex = 10;
+    char choice;
+
+    do
+    {
+        std::vector<double> newVolumes = {};
+        std::vector<std::string> newTimestamps = {};
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            newVolumes.push_back(volumes[i]);
+            newTimestamps.push_back(timestamps[i]);
+        }
+        VolumeBarChart::plotChart(newVolumes, newTimestamps);
+        startIndex += 10;
+        endIndex += 10;
+
+        if (endIndex >= volumes.size())
+        {
+            std::cout << "No more volumes." << std::endl;
+            break;
+        }
+
+        std::cout << "Do you want to see the more volumes for your choice? (y/n): ";
         std::cin >> choice;
     } while (choice == 'y' || choice == 'Y');
 }

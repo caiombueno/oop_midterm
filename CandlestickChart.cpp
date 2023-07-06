@@ -1,18 +1,6 @@
 #include "CandlestickChart.h"
 #include <iostream>
-
-std::vector<double> CandlestickChart::generateYAxisValues(double maxValue, double minValue, int numberOfElements)
-{
-    std::vector<double> result(numberOfElements);
-    double step = (maxValue - minValue) / (numberOfElements - 1);
-
-    for (int i = 0; i < numberOfElements; i++)
-    {
-        result[i] = maxValue - (i * step);
-    }
-
-    return result;
-}
+#include "Chart.h"
 
 std::vector<Candlestick> CandlestickChart::cutDatesStrings(std::vector<Candlestick> candlesticks)
 {
@@ -88,7 +76,7 @@ const void CandlestickChart::plotChart(std::vector<Candlestick> candlesticks)
     std::vector<std::string> plot(height, std::string(width, ' '));
 
     // get Y axis values
-    std::vector<double> yAxisValues = generateYAxisValues(maxValue, minValue, 10);
+    std::vector<double> yAxisValues = Chart::generateYAxisValues(maxValue, minValue, 10);
 
     // get X axis values
     std::vector<std::string> xAxisValues;

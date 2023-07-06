@@ -212,3 +212,45 @@ std::vector<OrderBookEntry> OrderBook::matchAsksToBids(std::string product, std:
     }
     return sales;
 }
+
+vector<OrderBookEntry> OrderBook::filterByProductAndType(string product, OrderBookType orderBookType)
+{
+    vector<OrderBookEntry> filteredEntries;
+    copy_if(orders.begin(), orders.end(), back_inserter(filteredEntries), [&](const OrderBookEntry &entry)
+            { return (entry.product == product && entry.orderType == orderBookType); });
+    return filteredEntries;
+}
+
+void OrderBook::plotOrderTypeDistribution(std::string product, std::string timestamp)
+{
+    // asks = orderbook.asks
+    std::vector<OrderBookEntry> asks = getOrders(OrderBookType::ask,
+                                                 product,
+                                                 timestamp);
+    // bids = orderbook.bids
+    std::vector<OrderBookEntry> bids = getOrders(OrderBookType::bid,
+                                                 product,
+                                                 timestamp);
+
+    int bidCount = bids.size();
+    int askCount = asks.size();
+
+    // Generate the plot using ASCII characters
+    std::cout << "Order Type Distribution:\n";
+    std::cout << "-------------------------\n";
+    std::cout << "Bid   : ";
+    for (int i = 0; i < bidCount; i++)
+    {
+        std::cout << "*";
+    }
+    std::cout << " (" << bidCount << ")\n";
+
+    std::cout << "Ask   : ";
+    for (int i = 0; i < askCount; i++)
+    {
+        std::cout << "*";
+    }
+    std::cout << " (" << askCount << ")\n";
+
+    std::cout << "-------------------------\n";
+}

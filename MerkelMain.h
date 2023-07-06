@@ -23,6 +23,7 @@ private:
     int getUserOption();
     void processUserOption(int userOption);
     void plotCandlestickGraph(std::string product, OrderBookType orderType);
+    void plotVolumeBarGraph(std::string product, OrderBookType orderType);
 
     std::string currentTime;
 
